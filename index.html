@@ -1,741 +1,108 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
-<meta name="theme-color" content="#FBF7EF" />
-<title>Draw Easy</title>
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icon-192.png" />
-<link rel="apple-touch-icon" href="icon-192.png" />
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b0c11"><title>Draw Easy 2.0</title>
+<link rel="manifest" href="manifest.json">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lalezar&family=Cairo:wght@400;600;700;800&display=swap');
-
-  :root{
-    --paper:#FBF7EF;
-    --paper-line:#E8E0D0;
-    --ink:#2E2A26;
-    --ink-soft:#6B6259;
-    --coral:#FF6B6B;
-    --teal:#2FA99A;
-    --sun:#F2B33D;
-    --violet:#8B7CD9;
-    --card-shadow: 0 6px 18px -8px rgba(46,42,38,0.25);
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    background:var(--paper);
-    background-image:
-      radial-gradient(circle at 1px 1px, var(--paper-line) 1px, transparent 0);
-    background-size: 22px 22px;
-    color:var(--ink);
-    font-family:'Cairo', sans-serif;
-    overflow-x:hidden;
-  }
-  h1,h2,h3,.display{ font-family:'Lalezar', 'Cairo', sans-serif; letter-spacing:0.5px; }
-
-  /* ---------- Header ---------- */
-  header.top{
-    padding:22px 18px 14px;
-    text-align:center;
-  }
-  .logo-row{ display:flex; align-items:center; justify-content:center; gap:10px; }
-  .logo-dot{
-    width:34px; height:34px; border-radius:50%;
-    background:conic-gradient(var(--coral),var(--sun),var(--teal),var(--violet),var(--coral));
-    box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 2px var(--ink);
-  }
-  header.top h1{ font-size:30px; margin:0; color:var(--ink); }
-  header.top p{ margin:4px 0 0; font-size:13px; color:var(--ink-soft); }
-
-  /* ---------- Filter chips ---------- */
-  .chips{
-    display:flex; gap:8px; padding:4px 18px 18px; overflow-x:auto;
-    justify-content:center; flex-wrap:wrap;
-  }
-  .chip{
-    font-family:'Cairo'; font-weight:700; font-size:13px;
-    padding:8px 16px; border-radius:999px; border:2px solid var(--ink);
-    background:var(--paper); color:var(--ink); cursor:pointer; white-space:nowrap;
-  }
-  .chip.active{ background:var(--ink); color:var(--paper); }
-
-  /* ---------- Grid ---------- */
-  .grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:14px;
-    padding:0 16px 40px; max-width:520px; margin:0 auto;
-  }
-  .card{
-    background:#fff; border:2.5px solid var(--ink); border-radius:18px;
-    padding:10px; box-shadow:var(--card-shadow); cursor:pointer;
-    transform:rotate(var(--tilt,0deg));
-    transition:transform .15s ease;
-  }
-  .card:active{ transform:scale(0.96) rotate(var(--tilt,0deg)); }
-  .card canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:var(--paper); }
-  .card .meta{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
-  .card .title{ font-weight:800; font-size:14px; }
-  .pill{ font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; color:#fff; }
-  .pill.easy{ background:var(--teal); }
-  .pill.medium{ background:var(--sun); color:var(--ink); }
-  .pill.hard{ background:var(--coral); }
-
-  /* ---------- Lesson view ---------- */
-  #lessonView{ display:none; padding:14px 14px 30px; max-width:480px; margin:0 auto; }
-  .lesson-header{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .back-btn{
-    width:38px; height:38px; border-radius:50%; border:2px solid var(--ink);
-    background:#fff; font-size:18px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-  }
-  .lesson-title{ font-size:22px; margin:0; }
-  .step-dots{ display:flex; gap:6px; justify-content:center; margin:6px 0 12px; }
-  .dot{ width:9px; height:9px; border-radius:50%; background:var(--paper-line); border:1.5px solid var(--ink); }
-  .dot.on{ background:var(--sun); }
-
-  .sketchpad{
-    position:relative; background:#fff; border-radius:16px;
-    border:2.5px solid var(--ink); box-shadow:var(--card-shadow);
-    padding:12px 12px 12px 26px; margin-bottom:12px;
-  }
-  .spiral{
-    position:absolute; right:-1px; top:14px; bottom:14px; width:20px;
-    background-image: radial-gradient(circle, var(--ink) 2.5px, transparent 2.6px);
-    background-size: 16px 16px; background-repeat: repeat-y; background-position: center;
-    opacity:0.55;
-  }
-  .canvas-wrap{ position:relative; width:100%; aspect-ratio:1/1; touch-action:none; }
-  .canvas-wrap canvas{ position:absolute; inset:0; width:100%; height:100%; border-radius:10px; }
-  #guideCanvas{ background:var(--paper); }
-  #inkCanvas{ background:transparent; }
-
-  .step-caption{ text-align:center; font-size:13px; color:var(--ink-soft); margin-top:6px; min-height:18px; }
-
-  .step-nav{ display:flex; gap:10px; margin-bottom:14px; }
-  .step-nav button{
-    flex:1; padding:11px; border-radius:12px; border:2px solid var(--ink);
-    font-family:'Cairo'; font-weight:800; font-size:14px; background:#fff; cursor:pointer;
-  }
-  .step-nav button.primary{ background:var(--ink); color:var(--paper); }
-  .step-nav button:disabled{ opacity:0.35; }
-
-  .tools{ background:#fff; border:2px solid var(--ink); border-radius:16px; padding:12px; }
-  .tools-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .tools-row:last-child{ margin-bottom:0; }
-  .swatch{
-    width:28px; height:28px; border-radius:50%; border:2px solid var(--ink); cursor:pointer; flex:none;
-  }
-  .swatch.on{ box-shadow:0 0 0 3px var(--sun); }
-  .tools label{ font-size:12px; font-weight:700; color:var(--ink-soft); white-space:nowrap; }
-  #sizeRange{ flex:1; accent-color: var(--ink); }
-  .clear-btn{
-    margin-inline-start:auto; font-family:'Cairo'; font-weight:800; font-size:12px;
-    border:2px solid var(--coral); color:var(--coral); background:#fff;
-    padding:7px 12px; border-radius:10px; cursor:pointer;
-  }
-
-  .about-note{
-    max-width:480px; margin:0 auto 30px; padding:0 18px;
-    font-size:12px; color:var(--ink-soft); text-align:center; line-height:1.8;
-  }
-
-  .update-link{
-    margin-top:10px; font-family:'Cairo'; font-weight:700; font-size:12px;
-    border:none; background:none; color:var(--ink-soft); text-decoration:underline;
-    cursor:pointer; padding:4px;
-  }
-  #updateToast{
-    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
-    background:var(--ink); color:var(--paper); font-family:'Cairo'; font-weight:700; font-size:13px;
-    padding:12px 18px; border-radius:12px; display:none; z-index:50; box-shadow:var(--card-shadow);
-    text-align:center; max-width:88vw;
-  }
-  #updateToast button{
-    display:block; margin:8px auto 0; background:var(--sun); color:var(--ink); border:none;
-    font-family:'Cairo'; font-weight:800; padding:7px 16px; border-radius:8px; cursor:pointer; font-size:12px;
-  }
-
-  .mode-toggle{
-    display:flex; gap:6px; background:#fff; border:2px solid var(--ink); border-radius:12px;
-    padding:4px; margin-bottom:12px;
-  }
-  .mode-btn{
-    flex:1; padding:9px 6px; border-radius:9px; border:none; background:none;
-    font-family:'Cairo'; font-weight:700; font-size:12.5px; color:var(--ink-soft); cursor:pointer;
-  }
-  .mode-btn.active{ background:var(--ink); color:var(--paper); }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#08090d;color:#f7f7fa;font-family:system-ui,-apple-system,"Noto Sans Arabic",sans-serif}
+button{font:inherit;color:inherit;border:0}.app{max-width:1100px;margin:auto;padding:12px 12px 95px}
+header{display:flex;align-items:center;justify-content:space-between;padding:5px 2px 18px}.brand{display:flex;align-items:center;gap:11px}.logo{width:48px;height:48px;border-radius:17px;background:linear-gradient(145deg,#7768ff,#a99aff);display:grid;place-items:center;font-size:24px;box-shadow:0 12px 35px #7567ff3a}.brand h1{font-size:20px;margin:0}.brand p{margin:3px 0 0;color:#979aa8;font-size:11px}
+.homeGrid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px;margin-bottom:13px}.hero,.mini{background:linear-gradient(145deg,#151722,#101119);border:1px solid #252936;border-radius:23px;padding:17px}.hero{min-height:165px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:#7567ff18;left:-40px;bottom:-75px}.hero h2{margin:0 0 7px;font-size:23px}.hero p{color:#aeb0bc;font-size:12px;max-width:480px;line-height:1.7}.newBtn{background:linear-gradient(135deg,#7566ff,#9b8dff);padding:12px 15px;border-radius:14px;font-weight:800}.mini{display:flex;flex-direction:column;justify-content:center}.mini strong{font-size:25px}.mini span{color:#999cab;font-size:11px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.tab{padding:13px;background:#11131a;border:1px solid #282c38;border-radius:17px;font-weight:800}.tab.active{background:#7566ff;border-color:#7566ff}
+.panel{background:#101219;border:1px solid #282c38;border-radius:23px;padding:12px}.tools{display:flex;align-items:center;gap:7px;overflow:auto;padding-bottom:9px}.tool{min-width:45px;height:43px;padding:0 11px;border-radius:13px;background:#1a1d26;border:1px solid #2b2f3b}.tool.active{background:#7566ff;border-color:#7566ff}.tooltxt{font-size:11px}.settings{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:10px}.settings label{font-size:11px;color:#9699a7}.color{width:39px;height:34px;padding:0;border:0;background:none}.range{accent-color:#7566ff;width:115px}
+.canvasWrap{height:min(65vh,690px);min-height:410px;background:#fff;border-radius:18px;overflow:hidden;position:relative;touch-action:none}.canvasWrap canvas{display:block;width:100%;height:100%}.hint{position:absolute;left:10px;top:10px;background:#101218bb;color:#fff;padding:6px 9px;border-radius:10px;font-size:10px;pointer-events:none}.bottomTools{display:flex;justify-content:space-between;gap:8px;margin-top:9px}.soft{background:#1a1d26;border:1px solid #2b2f3b;border-radius:13px;padding:10px 13px}.primary{background:#7566ff;border-radius:13px;padding:10px 15px;font-weight:800}
+.lessonHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.muted{color:#989aa7;font-size:11px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px}.lesson{background:#171a23;border:1px solid #2a2e3b;border-radius:18px;padding:9px;cursor:pointer}.art{height:155px;border-radius:13px;overflow:hidden;background:#f3ecdf}.art svg{width:100%;height:100%}.lesson h3{margin:8px 2px 2px;font-size:15px}.tag{display:inline-block;background:#282c39;color:#cfcaff;padding:5px 8px;border-radius:999px;font-size:9px}
+.layout{display:grid;grid-template-columns:1.05fr 1fr;gap:11px}.guide{background:#f3ecdf;border-radius:18px;overflow:hidden;min-height:390px}.guide svg{width:100%;height:100%}.info{background:#171a23;border:1px solid #2a2e3b;border-radius:18px;padding:15px}.info h2{margin:0 0 7px}.info p{color:#d0d2da;line-height:1.9;font-size:13px}.progress{height:7px;background:#2b2f3a;border-radius:9px;overflow:hidden;margin:15px 0}.progress i{height:100%;display:block;background:linear-gradient(90deg,#7566ff,#a99aff)}.hidden{display:none!important}.footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:9px;background:#0a0b10ef;border-top:1px solid #262a35;color:#9295a2;font-size:9px;backdrop-filter:blur(14px);z-index:10}
+@media(max-width:700px){.homeGrid{grid-template-columns:1fr}.mini{min-height:90px}.layout{grid-template-columns:1fr}.guide{min-height:300px}.canvasWrap{height:61vh;min-height:390px}}
 </style>
 </head>
 <body>
+<div class="app">
+<header><div class="brand"><div class="logo">✦</div><div><h1>Draw Easy 2.0</h1><p>ارسم بطريقتك، وتعلّم بأسلوبك.</p></div></div><button class="soft" onclick="newCanvas()">＋ جديد</button></header>
 
-<header class="top">
-  <div class="logo-row">
-    <div class="logo-dot"></div>
-    <h1>علّمني الرسم</h1>
-  </div>
-  <p>دروس رسم خطوة بخطوة — تشتغل بدون نت</p>
-  <button id="checkUpdateBtn" class="update-link">🔄 تحقق من تحديثات</button>
-</header>
-
-<div class="chips" id="chips"></div>
-<div class="grid" id="grid"></div>
-
-<p class="about-note">
-  كل الدروس محفوظة جوا التطبيق وتشتغل بدون إنترنت. لإضافة دروس جديدة بالمستقبل، لازم تحديث بسيط للتطبيق.
-</p>
-
-<div id="lessonView">
-  <div class="lesson-header">
-    <button class="back-btn" id="backBtn">→</button>
-    <h2 class="lesson-title" id="lessonTitle"></h2>
-  </div>
-  <div class="mode-toggle" id="modeToggle">
-    <button class="mode-btn active" data-mode="screen">🖐 أرسم عالشاشة</button>
-    <button class="mode-btn" data-mode="paper">📓 أرسم عالدفتر</button>
-  </div>
-  <div class="step-dots" id="stepDots"></div>
-
-  <div class="sketchpad">
-    <div class="spiral"></div>
-    <div class="canvas-wrap">
-      <canvas id="guideCanvas" width="320" height="320"></canvas>
-      <canvas id="inkCanvas" width="320" height="320"></canvas>
-    </div>
-    <div class="step-caption" id="stepCaption"></div>
-  </div>
-
-  <div class="step-nav">
-    <button id="prevStep">◀ السابقة</button>
-    <button id="nextStep" class="primary">التالية ▶</button>
-  </div>
-
-  <div class="tools">
-    <div class="tools-row" id="swatchRow"></div>
-    <div class="tools-row">
-      <label>سماكة الفرشاة</label>
-      <input type="range" id="sizeRange" min="2" max="14" value="5" />
-      <button class="clear-btn" id="clearInk">امسح رسمتي</button>
-    </div>
-  </div>
+<div class="homeGrid">
+<div class="hero"><h2>جاهز ترسم؟ 🎨</h2><p>مساحة رسم نظيفة وسريعة، مع دفتر تدريبات واقعية خطوة بخطوة. الأساسيات تعمل بدون إنترنت.</p><button class="newBtn" onclick="show('free')">ابدأ الرسم</button></div>
+<div class="mini"><span>دروسك</span><strong>01</strong><span>عين واقعية • 5 خطوات</span></div>
 </div>
 
-<div id="updateToast"></div>
+<div class="tabs"><button id="tf" class="tab active" onclick="show('free')">🎨 الاستوديو</button><button id="tb" class="tab" onclick="show('book')">📖 دفتر الرسم</button></div>
 
+<section id="free" class="panel">
+<div class="tools">
+<button id="pen" class="tool active" onclick="setTool('pen')">✏️<br><span class="tooltxt">قلم</span></button>
+<button id="pencil" class="tool" onclick="setTool('pencil')">🖍️<br><span class="tooltxt">رصاص</span></button>
+<button id="brush" class="tool" onclick="setTool('brush')">🖌️<br><span class="tooltxt">فرشاة</span></button>
+<button id="eraser" class="tool" onclick="setTool('eraser')">🧽<br><span class="tooltxt">ممحاة</span></button>
+<button class="tool" onclick="undo()">↩️<br><span class="tooltxt">تراجع</span></button>
+<button class="tool" onclick="redo()">↪️<br><span class="tooltxt">إعادة</span></button>
+</div>
+<div class="settings"><label>اللون</label><input id="color" class="color" type="color" value="#202027"><label>الحجم</label><input id="size" class="range" type="range" min="1" max="45" value="5"><span id="sv" class="tag">5</span><label>الشفافية</label><input id="opacity" class="range" type="range" min="10" max="100" value="100"><span id="ov" class="tag">100%</span></div>
+<div id="wrap" class="canvasWrap"><canvas id="c"></canvas><div class="hint">اسحب إصبعك للرسم ✨</div></div>
+<div class="bottomTools"><button class="soft" onclick="newCanvas()">مسح اللوحة</button><button class="primary" onclick="download()">💾 حفظ الرسم</button></div>
+</section>
+
+<section id="book" class="hidden">
+<div id="list"><div class="lessonHead"><div><h2 style="margin:0">دفتر الرسم 📖</h2><div class="muted">مو أشكال هندسية — خطوات رسم واقعية</div></div><span class="tag">OFFLINE</span></div><div id="lessons" class="grid"></div></div>
+<div id="viewer" class="hidden"><div class="lessonHead"><button class="soft" onclick="backLessons()">← رجوع</button><span id="counter" class="tag"></span></div><div class="layout"><div id="guide" class="guide"></div><div class="info"><h2 id="title"></h2><p id="desc"></p><div class="progress"><i id="bar"></i></div><div class="bottomTools"><button class="soft" onclick="prev()">السابق</button><button class="primary" onclick="next()">التالي ✨</button></div></div></div></div>
+</section>
+</div>
+<div class="footer">Draw Easy 2.0 • Developer: Molham Waheed • molhamwaheed36@gmail.com • 🔒 Offline</div>
 <script>
-
-const LESSONS = [
-  { id:'sun', title:'الشمس', difficulty:'easy',
-    captions:['ارسم دائرة بالنص','ضيف أشعة حوالين الدائرة','ضيف وجه مبتسم','لوّن: الدائرة والأشعة أصفر أو برتقالي'],
-    steps:[
-      [{t:'circle',cx:160,cy:160,r:48}],
-      [{t:'line',x1:160,y1:95,x2:160,y2:70},{t:'line',x1:160,y1:225,x2:160,y2:250},
-       {t:'line',x1:95,y1:160,x2:70,y2:160},{t:'line',x1:225,y1:160,x2:250,y2:160},
-       {t:'line',x1:114,y1:114,x2:96,y2:96},{t:'line',x1:206,y1:114,x2:224,y2:96},
-       {t:'line',x1:114,y1:206,x2:96,y2:224},{t:'line',x1:206,y1:206,x2:224,y2:224}],
-      [{t:'circle',cx:142,cy:150,r:4,fill:true},{t:'circle',cx:178,cy:150,r:4,fill:true},
-       {t:'curve',points:[[140,175],[160,190],[180,175]]}],
-      [{t:'circle',cx:160,cy:160,r:48,color:'#F2B33D'}]
-    ]},
-  { id:'heart', title:'قلب', difficulty:'easy',
-    captions:['ارسم نصين قلب من فوق','وصلهم لتحت بشكل قلب','ضيف بريق صغير','لوّن كل القلب بالأحمر أو الوردي'],
-    steps:[
-      [{t:'circle',cx:135,cy:140,r:32},{t:'circle',cx:185,cy:140,r:32}],
-      [{t:'curve',points:[[104,150],[100,190],[160,235]]},
-       {t:'curve',points:[[216,150],[220,190],[160,235]]}],
-      [{t:'line',x1:145,y1:120,x2:152,y2:112},{t:'line',x1:158,y1:118,x2:150,y2:130}],
-      [{t:'circle',cx:135,cy:140,r:32,color:'#FF6B6B'},{t:'circle',cx:185,cy:140,r:32,color:'#FF6B6B'}]
-    ]},
-  { id:'icecream', title:'مثلجة', difficulty:'easy',    captions:['ارسم مثلث القمع','ضيف كرة المثلجة فوق','ضيف خطوط القمع','ضيف كرزة بالقمة','لوّن: القمع بني، الكرة وردي، الكرزة حمراء'],
-    steps:[
-      [{t:'triangle',p1:[135,180],p2:[185,180],p3:[160,258]}],
-      [{t:'circle',cx:160,cy:148,r:40}],
-      [{t:'line',x1:142,y1:190,x2:160,y2:245},{t:'line',x1:178,y1:190,x2:160,y2:245},
-       {t:'line',x1:140,y1:205,x2:180,y2:205},{t:'line',x1:145,y1:225,x2:175,y2:225}],
-      [{t:'circle',cx:160,cy:104,r:8,fill:true},{t:'line',x1:160,y1:96,x2:166,y2:84}],
-      [{t:'triangle',p1:[135,180],p2:[185,180],p3:[160,258],color:'#B08463'},
-       {t:'circle',cx:160,cy:148,r:40,color:'#FF9EC4'},
-       {t:'circle',cx:160,cy:104,r:8,color:'#FF6B6B'}]
-    ]},
-  { id:'cat', title:'قطة', difficulty:'medium',
-    captions:['ارسم دائرة الوجه','ضيف الأذنين المثلثة','ضيف العيون والأنف','ضيف الشوارب والفم','لوّن: الوجه برتقالي، الأذنين من جوا وردي'],
-    steps:[
-      [{t:'circle',cx:160,cy:175,r:58}],
-      [{t:'triangle',p1:[108,135],p2:[128,82],p3:[150,132]},
-       {t:'triangle',p1:[170,132],p2:[192,82],p3:[212,135]}],
-      [{t:'circle',cx:133,cy:165,r:6,fill:true},{t:'circle',cx:187,cy:165,r:6,fill:true},
-       {t:'triangle',p1:[153,183],p2:[167,183],p3:[160,193]}],
-      [{t:'line',x1:150,y1:190,x2:100,y2:180},{t:'line',x1:150,y1:198,x2:100,y2:198},
-       {t:'line',x1:170,y1:190,x2:220,y2:180},{t:'line',x1:170,y1:198,x2:220,y2:198},
-       {t:'curve',points:[[160,193],[150,205],[160,210]]},
-       {t:'curve',points:[[160,193],[170,205],[160,210]]}],
-      [{t:'circle',cx:160,cy:175,r:58,color:'#F2B33D'},
-       {t:'triangle',p1:[108,135],p2:[128,82],p3:[150,132],color:'#FF9EC4'},
-       {t:'triangle',p1:[170,132],p2:[192,82],p3:[212,135],color:'#FF9EC4'}]
-    ]},
-  { id:'flower', title:'زهرة', difficulty:'medium',
-    captions:['ارسم دائرة النص','ضيف البتلات حوالين','ضيف الساق والأوراق','ضيف خط الأرض','لوّن: النص أصفر، البتلات وردي، الساق أخضر'],
-    steps:[
-      [{t:'circle',cx:160,cy:150,r:18}],
-      [{t:'circle',cx:160,cy:108,r:22},{t:'circle',cx:198,cy:130,r:22},{t:'circle',cx:198,cy:172,r:22},
-       {t:'circle',cx:160,cy:194,r:22},{t:'circle',cx:122,cy:172,r:22},{t:'circle',cx:122,cy:130,r:22}],
-      [{t:'line',x1:160,y1:168,x2:160,y2:262},
-       {t:'curve',points:[[160,215],[130,225],[125,245]]},
-       {t:'curve',points:[[160,235],[190,245],[195,260]]}],
-      [{t:'line',x1:110,y1:262,x2:210,y2:262}],
-      [{t:'circle',cx:160,cy:150,r:18,color:'#F2B33D'},
-       {t:'circle',cx:160,cy:108,r:22,color:'#FF9EC4'},{t:'circle',cx:198,cy:130,r:22,color:'#FF9EC4'},
-       {t:'circle',cx:198,cy:172,r:22,color:'#FF9EC4'},{t:'circle',cx:160,cy:194,r:22,color:'#FF9EC4'},
-       {t:'circle',cx:122,cy:172,r:22,color:'#FF9EC4'},{t:'circle',cx:122,cy:130,r:22,color:'#FF9EC4'}]
-    ]},
-  { id:'fish', title:'سمكة', difficulty:'medium',
-    captions:['ارسم جسم السمكة البيضاوي','ضيف الذيل المثلث','ضيف العين والزعانف','لوّن: الجسم أزرق أو برتقالي، الذيل بلون أغمق'],
-    steps:[
-      [{t:'ellipse',cx:145,cy:170,rx:70,ry:38,rot:0}],
-      [{t:'triangle',p1:[208,170],p2:[252,138],p3:[252,202]}],
-      [{t:'circle',cx:110,cy:158,r:6,fill:true},
-       {t:'triangle',p1:[135,140],p2:[150,112],p3:[165,140]},
-       {t:'triangle',p1:[135,200],p2:[150,225],p3:[165,200]},
-       {t:'curve',points:[[95,175],[110,185],[125,178]]}],
-      [{t:'ellipse',cx:145,cy:170,rx:70,ry:38,rot:0,color:'#4A90D9'},
-       {t:'triangle',p1:[208,170],p2:[252,138],p3:[252,202],color:'#2FA99A'}]
-    ]},
-  { id:'bear', title:'دبدوب', difficulty:'hard',
-    captions:['ارسم دائرة الرأس','ضيف الأذنين','ضيف الخطم بالنص','ضيف العيون والأنف','ضيف الفم','لوّن: كل الرأس بني فاتح، الخطم من جوا بيج'],
-    steps:[
-      [{t:'circle',cx:160,cy:172,r:55}],
-      [{t:'circle',cx:112,cy:112,r:26},{t:'circle',cx:208,cy:112,r:26}],
-      [{t:'circle',cx:112,cy:112,r:12},{t:'circle',cx:208,cy:112,r:12},
-       {t:'circle',cx:160,cy:196,r:26}],
-      [{t:'circle',cx:136,cy:158,r:6,fill:true},{t:'circle',cx:184,cy:158,r:6,fill:true},
-       {t:'circle',cx:160,cy:186,r:8,fill:true}],
-      [{t:'curve',points:[[160,194],[148,208],[138,204]]},
-       {t:'curve',points:[[160,194],[172,208],[182,204]]}],
-      [{t:'circle',cx:160,cy:172,r:55,color:'#B08463'},{t:'circle',cx:112,cy:112,r:26,color:'#B08463'},
-       {t:'circle',cx:208,cy:112,r:26,color:'#B08463'},{t:'circle',cx:160,cy:196,r:26,color:'#EAD3B0'}]
-    ]},
-  { id:'face', title:'وجه إنسان', difficulty:'hard',
-    captions:['ارسم بيضاوي الوجه','ضيف خطوط التوجيه','ضيف العينين والحواجب','ضيف الأنف والفم','ضيف الأذنين والشعر','لوّن: الوجه لون البشرة، الشعر أي لون تحبه'],
-    steps:[
-      [{t:'ellipse',cx:160,cy:172,rx:56,ry:72,rot:0}],
-      [{t:'line',x1:104,y1:162,x2:216,y2:162,dash:true},{t:'line',x1:160,y1:100,x2:160,y2:244,dash:true}],
-      [{t:'ellipse',cx:133,cy:162,rx:12,ry:7,rot:0},{t:'ellipse',cx:187,cy:162,rx:12,ry:7,rot:0},
-       {t:'line',x1:118,y1:145,x2:146,y2:140},{t:'line',x1:174,y1:140,x2:202,y2:145}],
-      [{t:'curve',points:[[160,162],[152,196],[160,202]]},
-       {t:'curve',points:[[138,222],[160,232],[182,222]]}],
-      [{t:'curve',points:[[104,155],[92,172],[104,190]]},
-       {t:'curve',points:[[216,155],[228,172],[216,190]]},
-       {t:'arcline',cx:160,cy:150,r:60,a1:200,a2:340}],
-      [{t:'ellipse',cx:160,cy:172,rx:56,ry:72,rot:0,color:'#EAC49B'}]
-    ]},
-  { id:'body', title:'جسم إنسان', difficulty:'hard',
-    captions:['ارسم الرأس','ضيف الجذع والكتفين','ضيف الذراعين','ضيف الرجلين','خلي الجسم عريض شوي','لوّن: البشرة بلون واحد، والملابس بلون تاني'],
-    steps:[
-      [{t:'circle',cx:160,cy:75,r:24}],
-      [{t:'line',x1:160,y1:99,x2:160,y2:188},{t:'line',x1:128,y1:118,x2:192,y2:118}],
-      [{t:'line',x1:128,y1:118,x2:104,y2:188},{t:'line',x1:192,y1:118,x2:216,y2:188}],
-      [{t:'line',x1:160,y1:188,x2:134,y2:265},{t:'line',x1:160,y1:188,x2:186,y2:265}],
-      [{t:'ellipse',cx:160,cy:150,rx:34,ry:42,rot:0}],
-      [{t:'circle',cx:160,cy:75,r:24,color:'#EAC49B'},{t:'ellipse',cx:160,cy:150,rx:34,ry:42,rot:0,color:'#4A90D9'}]
-    ]},
-  { id:'star', title:'نجمة', difficulty:'easy',
-    captions:['ارسم مثلث لفوق','ضيف مثلث مقلوب فوقه لتصير نجمة','ضيف بريق صغير بالأطراف','لوّن كل النجمة بالأصفر الذهبي'],
-    steps:[
-      [{t:'triangle',p1:[160,85],p2:[95,225],p3:[225,225]}],
-      [{t:'triangle',p1:[160,255],p2:[95,115],p3:[225,115]}],
-      [{t:'line',x1:160,y1:75,x2:160,y2:62},{t:'line',x1:150,y1:70,x2:170,y2:70}],
-      [{t:'triangle',p1:[160,85],p2:[95,225],p3:[225,225],color:'#F2B33D'},
-       {t:'triangle',p1:[160,255],p2:[95,115],p3:[225,115],color:'#F2B33D'}]
-    ]},
-  { id:'house', title:'بيت', difficulty:'medium',
-    captions:['ارسم مربع جسم البيت','ضيف السقف المثلث','ضيف الباب والشباك','ضيف مدخنة صغيرة','لوّن: السقف أحمر، الجدران بيج، الباب بني'],
-    steps:[
-      [{t:'rect',x:110,y:160,w:100,h:80}],
-      [{t:'triangle',p1:[100,160],p2:[220,160],p3:[160,100]}],
-      [{t:'rect',x:145,y:200,w:30,h:40},{t:'rect',x:180,y:175,w:20,h:20}],
-      [{t:'rect',x:185,y:110,w:14,h:30}],
-      [{t:'rect',x:110,y:160,w:100,h:80,color:'#EAD3B0'},
-       {t:'triangle',p1:[100,160],p2:[220,160],p3:[160,100],color:'#FF6B6B'},
-       {t:'rect',x:145,y:200,w:30,h:40,color:'#B08463'}]
-    ]},
-  { id:'tree', title:'شجرة', difficulty:'easy',
-    captions:['ارسم جذع الشجرة','ضيف تاج الشجرة بالأعلى','ضيف خط الأرض','لوّن: الجذع بني، التاج أخضر'],
-    steps:[
-      [{t:'rect',x:150,y:200,w:20,h:70}],
-      [{t:'circle',cx:135,cy:165,r:35},{t:'circle',cx:185,cy:165,r:35},{t:'circle',cx:160,cy:138,r:38}],
-      [{t:'line',x1:100,y1:270,x2:220,y2:270}],
-      [{t:'rect',x:150,y:200,w:20,h:70,color:'#B08463'},
-       {t:'circle',cx:135,cy:165,r:35,color:'#2FA99A'},{t:'circle',cx:185,cy:165,r:35,color:'#2FA99A'},
-       {t:'circle',cx:160,cy:138,r:38,color:'#2FA99A'}]
-    ]},
-  { id:'butterfly', title:'فراشة', difficulty:'hard',
-    captions:['ارسم خط الجسم بالنص','ضيف الجناحين العلويين','ضيف الجناحين السفليين','ضيف قرون الاستشعار','لوّن كل جناح بلون مختلف عشان تصير ملونة'],
-    steps:[
-      [{t:'ellipse',cx:160,cy:160,rx:6,ry:55,rot:0}],
-      [{t:'ellipse',cx:120,cy:120,rx:38,ry:28,rot:-20},{t:'ellipse',cx:200,cy:120,rx:38,ry:28,rot:20}],
-      [{t:'ellipse',cx:125,cy:185,rx:28,ry:22,rot:15},{t:'ellipse',cx:195,cy:185,rx:28,ry:22,rot:-15}],
-      [{t:'line',x1:155,y1:108,x2:135,y2:85},{t:'line',x1:165,y1:108,x2:185,y2:85}],
-      [{t:'ellipse',cx:120,cy:120,rx:38,ry:28,rot:-20,color:'#FF6B6B'},
-       {t:'ellipse',cx:200,cy:120,rx:38,ry:28,rot:20,color:'#4A90D9'},
-       {t:'ellipse',cx:125,cy:185,rx:28,ry:22,rot:15,color:'#F2B33D'},
-       {t:'ellipse',cx:195,cy:185,rx:28,ry:22,rot:-15,color:'#8B7CD9'}]
-    ]},
-  { id:'dog', title:'كلب', difficulty:'hard',
-    captions:['ارسم دائرة الوجه','ضيف الأذنين المتدليتين','ضيف الخطم بالنص','ضيف العينين والأنف','ضيف الفم','لوّن: الوجه بني فاتح، الأذنين بلون أغمق'],
-    steps:[
-      [{t:'circle',cx:160,cy:175,r:55}],
-      [{t:'ellipse',cx:110,cy:150,rx:22,ry:40,rot:-15},{t:'ellipse',cx:210,cy:150,rx:22,ry:40,rot:15}],
-      [{t:'circle',cx:160,cy:200,r:28}],
-      [{t:'circle',cx:135,cy:160,r:6,fill:true},{t:'circle',cx:185,cy:160,r:6,fill:true},
-       {t:'circle',cx:160,cy:190,r:8,fill:true}],
-      [{t:'curve',points:[[160,198],[148,212],[138,206]]},
-       {t:'curve',points:[[160,198],[172,212],[182,206]]}],
-      [{t:'circle',cx:160,cy:175,r:55,color:'#EAD3B0'},
-       {t:'ellipse',cx:110,cy:150,rx:22,ry:40,rot:-15,color:'#B08463'},
-       {t:'ellipse',cx:210,cy:150,rx:22,ry:40,rot:15,color:'#B08463'}]
-    ]},
-  { id:'cloud', title:'سحابة', difficulty:'easy',
-    captions:['ارسم تلات دوائر متداخلة فوق بعض','نعّم الخط الخارجي حواليهم','لوّنها رمادي فاتح أو بيضاء'],
-    steps:[
-      [{t:'ellipse',cx:140,cy:180,rx:45,ry:28,rot:0},{t:'ellipse',cx:190,cy:175,rx:38,ry:25,rot:0},
-       {t:'ellipse',cx:165,cy:160,rx:35,ry:28,rot:0}],
-      [{t:'curve',points:[[100,190],[160,205],[225,190]]}],
-      [{t:'ellipse',cx:140,cy:180,rx:45,ry:28,rot:0,color:'#C9D6E0'},
-       {t:'ellipse',cx:190,cy:175,rx:38,ry:25,rot:0,color:'#C9D6E0'},
-       {t:'ellipse',cx:165,cy:160,rx:35,ry:28,rot:0,color:'#C9D6E0'}]
-    ]},
-  { id:'apple', title:'تفاحة', difficulty:'easy',
-    captions:['ارسم دائرتين متداخلتين لشكل التفاحة','ضيف عنق وورقة فوق','لوّن الجسم أحمر، الورقة خضراء'],
-    steps:[
-      [{t:'circle',cx:140,cy:175,r:40},{t:'circle',cx:180,cy:175,r:40}],
-      [{t:'line',x1:160,y1:135,x2:160,y2:112},{t:'ellipse',cx:178,cy:110,rx:16,ry:9,rot:-20}],
-      [{t:'circle',cx:140,cy:175,r:40,color:'#FF6B6B'},{t:'circle',cx:180,cy:175,r:40,color:'#FF6B6B'},
-       {t:'ellipse',cx:178,cy:110,rx:16,ry:9,rot:-20,color:'#2FA99A'}]
-    ]},
-  { id:'boat', title:'قارب شراعي', difficulty:'medium',
-    captions:['ارسم جسم القارب المثلث','ضيف عمود الشراع','ضيف الشراع المثلث','ضيف خط الماء المتموج','لوّن: الجسم بني، الشراع أبيض أو أزرق، الماء أزرق'],
-    steps:[
-      [{t:'triangle',p1:[110,220],p2:[210,220],p3:[160,180]}],
-      [{t:'line',x1:160,y1:180,x2:160,y2:90}],
-      [{t:'triangle',p1:[160,90],p2:[160,175],p3:[215,175]}],
-      [{t:'curve',points:[[80,235],[160,250],[240,235]]}],
-      [{t:'triangle',p1:[110,220],p2:[210,220],p3:[160,180],color:'#B08463'},
-       {t:'triangle',p1:[160,90],p2:[160,175],p3:[215,175],color:'#4A90D9'},
-       {t:'curve',points:[[80,235],[160,250],[240,235]]}]
-    ]},
-  { id:'bee', title:'نحلة', difficulty:'medium',
-    captions:['ارسم جسم النحلة البيضاوي','ضيف خطوط الشرائط','ضيف الجناحين','ضيف قرون الاستشعار والعينين','لوّن: الشرائط أصفر وأسود بالتناوب'],
-    steps:[
-      [{t:'ellipse',cx:160,cy:170,rx:45,ry:30,rot:0}],
-      [{t:'line',x1:135,y1:145,x2:135,y2:195},{t:'line',x1:160,y1:142,x2:160,y2:198},{t:'line',x1:185,y1:145,x2:185,y2:195}],
-      [{t:'ellipse',cx:130,cy:140,rx:25,ry:18,rot:-20},{t:'ellipse',cx:190,cy:140,rx:25,ry:18,rot:20}],
-      [{t:'line',x1:150,y1:145,x2:140,y2:120},{t:'line',x1:170,y1:145,x2:180,y2:120},
-       {t:'circle',cx:143,cy:158,r:4,fill:true},{t:'circle',cx:177,cy:158,r:4,fill:true}],
-      [{t:'ellipse',cx:160,cy:170,rx:45,ry:30,rot:0,color:'#F2B33D'},
-       {t:'ellipse',cx:130,cy:140,rx:25,ry:18,rot:-20,color:'#C9D6E0'},
-       {t:'ellipse',cx:190,cy:140,rx:25,ry:18,rot:20,color:'#C9D6E0'}]
-    ]},
-  { id:'umbrella', title:'مظلة', difficulty:'medium',
-    captions:['ارسم نص دائرة لقبة المظلة','ضيف خط القاعدة تحتها','ضيف المقبض بالأسفل','لوّن بالتناوب بين لونين أو تلاتة'],
-    steps:[
-      [{t:'arcline',cx:160,cy:170,r:70,a1:180,a2:360}],
-      [{t:'line',x1:90,y1:170,x2:230,y2:170}],
-      [{t:'line',x1:160,y1:170,x2:160,y2:240},{t:'curve',points:[[160,240],[140,245],[142,225]]}],
-      [{t:'arcline',cx:160,cy:170,r:70,a1:180,a2:360,color:'#FF6B6B'}]
-    ]},
-  { id:'moon', title:'قمر ونجوم', difficulty:'easy',
-    captions:['ارسم شكل الهلال بقوسين','ضيف نجوم صغيرة حواليه','لوّن القمر أصفر فاتح والنجوم أبيض أو أصفر'],
-    steps:[
-      [{t:'arcline',cx:160,cy:160,r:50,a1:250,a2:110},{t:'arcline',cx:180,cy:160,r:42,a1:260,a2:100}],
-      [{t:'line',x1:90,y1:100,x2:98,y2:108},{t:'line',x1:94,y1:96,x2:94,y2:112},
-       {t:'line',x1:230,y1:200,x2:238,y2:208},{t:'line',x1:234,y1:196,x2:234,y2:212},
-       {t:'line',x1:100,y1:230,x2:106,y2:236},{t:'line',x1:103,y1:227,x2:103,y2:239}],
-      [{t:'circle',cx:160,cy:160,r:40,color:'#F2B33D'}]
-    ]}
+const c=document.getElementById('c'),ctx=c.getContext('2d'),wrap=document.getElementById('wrap');let dpr=1,down=false,last=null,toolName='pen',hist=[],future=[];
+function fit(){let r=wrap.getBoundingClientRect(),old=c.width?c.toDataURL():null;dpr=devicePixelRatio||1;c.width=r.width*dpr;c.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,r.width,r.height);if(old){let i=new Image;i.onload=()=>ctx.drawImage(i,0,0,r.width,r.height);i.src=old}}new ResizeObserver(fit).observe(wrap);setTimeout(fit,60);
+function p(e){let r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}function start(e){down=true;c.setPointerCapture(e.pointerId);last=p(e);snap()}function move(e){if(!down)return;let q=p(e),s=+size.value;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=toolName==='pencil'?Math.max(1,s*.5):toolName==='brush'?s*1.8:s;ctx.globalAlpha=+opacity.value/100*(toolName==='pencil'?.55:toolName==='brush'?.2:1);ctx.strokeStyle=toolName==='eraser'?'#fff':color.value;ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.globalAlpha=1;last=q}function end(){down=false;last=null}c.onpointerdown=start;c.onpointermove=move;c.onpointerup=end;c.onpointercancel=end;
+function snap(){hist.push(c.toDataURL());if(hist.length>30)hist.shift();future=[]}function restore(u){let i=new Image;i.onload=()=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(i,0,0,c.width,c.height);ctx.restore()};i.src=u}function undo(){if(!hist.length)return;future.push(c.toDataURL());restore(hist.pop())}function redo(){if(!future.length)return;hist.push(c.toDataURL());restore(future.pop())}function newCanvas(){snap();ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.restore()}function setTool(t){toolName=t;['pen','pencil','brush','eraser'].forEach(k=>document.getElementById(k).classList.toggle('active',k===t))}size.oninput=()=>sv.textContent=size.value;opacity.oninput=()=>ov.textContent=opacity.value+'%';function download(){let a=document.createElement('a');a.download='draw-easy.png';a.href=c.toDataURL();a.click()}
+function show(m){free.classList.toggle('hidden',m!=='free');book.classList.toggle('hidden',m!=='book');tf.classList.toggle('active',m==='free');tb.classList.toggle('active',m==='book');if(m==='book')renderLessons()}
+const steps=[['1 • الهيكل الخفيف','ابدأ بخط رصاص خفيف يحدد شكل العين والجفن. لا تضغط على القلم؛ الهدف هو تثبيت النِّسب فقط.'],['2 • القزحية والبؤبؤ','ضع القزحية والبؤبؤ، واترك نقطة صغيرة للضوء. انتبه لمركز العين قبل إضافة التفاصيل.'],['3 • الجفن والرموش','أضف سماكة الجفن والرموش باتجاه نموها الطبيعي، مع اختلاف بسيط في الطول والانحناء.'],['4 • الظلال','أضف تدرجاً ناعماً داخل القزحية وظلال الجفن وتحت العين. اشتغل بطبقات خفيفة.'],['5 • اللمسة الأخيرة','قوِّ البؤبؤ وبعض الرموش، امسح خطوط البناء، وأضف اللمعة والتباين النهائي.']];
+function eye(n){let o=[.22,.4,.6,.8,1][n];return `<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg"><rect width="600" height="400" fill="#f3ecdf"/><g fill="none" stroke="#27231f" stroke-linecap="round" stroke-linejoin="round"><path d="M70 210 Q300 75 530 210 Q300 345 70 210" stroke-width="7" opacity="${o}"/>${n>0?`<ellipse cx="300" cy="210" rx="88" ry="94" stroke-width="6" opacity="${o}"/><circle cx="300" cy="210" r="42" fill="#302d29" stroke-width="3" opacity="${o}"/>`:''}${n>1?`<path d="M115 155 Q150 108 205 115 M395 115 Q450 108 485 155" stroke-width="9" opacity="${o}"/><g stroke-width="4" opacity="${o}"><path d="M125 150l-16-24M145 137l-12-27M170 126l-7-28M430 126l7-28M455 137l12-27M475 150l16-24"/></g>`:''}${n>2?`<g stroke-width="2.5" opacity=".5"><path d="M260 145l-17-20M280 137l-9-24M300 133v-26M320 137l9-24M340 145l17-20"/><path d="M215 250q-42 20-68 8M385 250q42 20 68 8"/></g>`:''}${n>3?`<circle cx="316" cy="195" r="11" fill="#fff" stroke="none"/><g stroke-width="2" opacity=".45"><path d="M270 205l-18 7M275 218l-15 12M330 205l18 7M325 218l15 12"/></g>`:''}</g><text x="300" y="372" text-anchor="middle" font-size="18" fill="#655d54">Draw Easy • ${n+1}</text></svg>`}
+const lessonsData=[
+{id:'eye',title:'👁️ عين واقعية',tag:'متوسط',desc:'بناء العين، القزحية، الرموش والظلال بطريقة تدريجية.'},
+{id:'nose',title:'👃 أنف واقعي',tag:'متوسط',desc:'تعلّم بناء الأنف بالكتل والظل بدل الخطوط القاسية.'},
+{id:'lips',title:'👄 شفاه واقعية',tag:'مبتدئ+',desc:'رسم الشفاه، الحواف، التجاعيد واللمعة.'},
+{id:'ear',title:'👂 أذن',tag:'مبتدئ+',desc:'فهم شكل الأذن الداخلي والظلال الأساسية.'},
+{id:'hand',title:'🖐️ يد',tag:'متقدم',desc:'تبسيط اليد إلى كتل ثم إضافة الأصابع والتفاصيل.'},
+{id:'face',title:'🙂 وجه كامل',tag:'متقدم',desc:'النِّسب الأساسية ثم العين والأنف والفم والظل.'},
+{id:'hair',title:'💇 شعر واقعي',tag:'متوسط',desc:'خصل كبيرة أولاً ثم الخصل الصغيرة واللمعان.'},
+{id:'cat',title:'🐱 وجه قطة',tag:'مبتدئ',desc:'خطوات لطيفة لرسم وجه حيوان مع الفرو والعيون.'},
+{id:'rose',title:'🌹 وردة',tag:'مبتدئ',desc:'طبقات البتلات مع تدرج الظل والنور.'},
+{id:'mug',title:'☕ كوب',tag:'مبتدئ',desc:'شكل بسيط، منظور خفيف، ظل ساقط ولمعة.'},
+{id:'landscape',title:'🌄 منظر طبيعي',tag:'متوسط',desc:'سماء، جبال، أشجار وعمق بصري.'},
+{id:'light',title:'💡 الظل والنور',tag:'أساسي',desc:'تعلّم اتجاه الضوء والتدرج والظل الساقط.'}
 ];
-
-const DIFF_LABEL = { easy:'سهل', medium:'متوسط', hard:'صعب' };
-
-/* ================= DRAW ENGINE ================= */
-function drawShape(ctx, s, color, width, dashOverride){
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = width;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  if (s.dash || dashOverride) ctx.setLineDash([6,6]); else ctx.setLineDash([]);
-
-  if (s.t === 'circle'){
-    ctx.beginPath(); ctx.arc(s.cx, s.cy, s.r, 0, Math.PI*2);
-    s.fill ? ctx.fill() : ctx.stroke();
-  } else if (s.t === 'ellipse'){
-    ctx.beginPath(); ctx.ellipse(s.cx, s.cy, s.rx, s.ry, (s.rot||0)*Math.PI/180, 0, Math.PI*2);
-    ctx.stroke();
-  } else if (s.t === 'line'){
-    ctx.beginPath(); ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); ctx.stroke();
-  } else if (s.t === 'triangle'){
-    ctx.beginPath(); ctx.moveTo(...s.p1); ctx.lineTo(...s.p2); ctx.lineTo(...s.p3); ctx.closePath(); ctx.stroke();
-  } else if (s.t === 'curve'){
-    const p = s.points;
-    ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
-    ctx.quadraticCurveTo(p[1][0], p[1][1], p[2][0], p[2][1]);
-    ctx.stroke();
-  } else if (s.t === 'arcline'){
-    ctx.beginPath(); ctx.arc(s.cx, s.cy, s.r, s.a1*Math.PI/180, s.a2*Math.PI/180); ctx.stroke();
-  } else if (s.t === 'rect'){
-    ctx.beginPath(); ctx.rect(s.x, s.y, s.w, s.h); ctx.stroke();
-  }
-  ctx.restore();
+function artFor(id,n){
+ if(id==='eye') return eye(n);
+ let labels={nose:'أنف',lips:'شفاه',ear:'أذن',hand:'يد',face:'وجه',hair:'شعر',cat:'قطة',rose:'وردة',mug:'كوب',landscape:'منظر',light:'ظل ونور'};
+ let op=[.22,.4,.6,.8,1][n];
+ return `<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg"><rect width="600" height="400" fill="#f3ecdf"/><g fill="none" stroke="#27231f" stroke-linecap="round" stroke-linejoin="round" opacity="${op}">
+ <path d="${id==='nose'?'M300 80 Q270 190 260 250 Q300 275 340 250 M260 250q40 25 80 0':id==='lips'?'M150 205 Q300 145 450 205 Q300 270 150 205 M180 205 Q300 235 420 205':id==='ear'?'M360 80 Q490 80 470 210 Q450 335 330 300 Q290 280 320 220 Q350 180 335 135 Q330 100 360 80':id==='hand'?'M210 310 Q175 260 190 215 L205 125 Q210 105 225 110 L230 210 L245 95 Q250 75 265 85 L270 210 L285 75 Q290 55 305 70 L310 215 L330 95 Q338 75 350 90 L335 230 Q390 210 405 235 Q420 260 395 280 L320 330 Z':id==='face'?'M180 105 Q300 40 420 105 L400 270 Q300 350 200 270 Z':id==='hair'?'M170 285 Q120 120 300 70 Q480 120 430 285 Q390 210 350 155 Q280 120 210 160 Z':id==='cat'?'M170 285 L145 110 L245 165 Q300 145 355 165 L455 110 L430 285 Q300 360 170 285 Z':id==='rose'?'M300 80 C240 100 220 160 270 190 C210 210 230 290 300 275 C370 300 390 210 330 190 C380 160 360 100 300 80 Z':id==='mug'?'M190 130 L410 130 L390 300 L210 300 Z M410 170 Q500 160 490 230 Q475 270 400 250':id==='landscape'?'M70 300 L200 160 L280 250 L390 120 L530 300 Z M80 100 Q300 30 520 100': 'M100 300 Q300 210 500 300 M170 280 Q300 90 430 280'}" stroke-width="7"/>
+ ${n>0?`<path d="M180 290 Q300 ${240-n*15} 420 290" stroke-width="5"/><circle cx="300" cy="185" r="${25+n*6}" stroke-width="5"/>`:''}
+ ${n>1?`<g stroke-width="3"><path d="M220 250l-30 25M250 245l-20 35M350 245l20 35M380 250l30 25"/><path d="M260 155l-20-15M340 155l20-15"/></g>`:''}
+ ${n>2?`<g stroke-width="2" opacity=".6"><path d="M210 190l-45 25M390 190l45 25M250 200l-35 25M350 200l35 25M270 115l-20-20M330 115l20-20"/></g>`:''}
+ ${n>3?`<circle cx="318" cy="170" r="10" fill="#fff" stroke="none"/>`:''}
+ </g><text x="300" y="372" text-anchor="middle" font-size="18" fill="#655d54">Draw Easy • خطوة ${n+1}</text></svg>`;
 }
-
-function drawColorShape(ctx, s){
-  ctx.save();
-  ctx.globalAlpha = 0.55;
-  ctx.fillStyle = s.color;
-  if (s.t === 'circle'){
-    ctx.beginPath(); ctx.arc(s.cx, s.cy, s.r, 0, Math.PI*2); ctx.fill();
-  } else if (s.t === 'ellipse'){    ctx.beginPath(); ctx.ellipse(s.cx, s.cy, s.rx, s.ry, (s.rot||0)*Math.PI/180, 0, Math.PI*2); ctx.fill();
-  } else if (s.t === 'triangle'){
-    ctx.beginPath(); ctx.moveTo(...s.p1); ctx.lineTo(...s.p2); ctx.lineTo(...s.p3); ctx.closePath(); ctx.fill();
-  } else if (s.t === 'rect'){
-    ctx.beginPath(); ctx.rect(s.x, s.y, s.w, s.h); ctx.fill();
-  }
-  ctx.restore();
+function renderLessons(){
+ lessons.innerHTML=lessonsData.map((l,i)=>`<div class="lesson" onclick="openLesson(${i})"><div class="art">${artFor(l.id,4)}</div><h3>${l.title}</h3><span class="tag">${l.tag} • 5 خطوات</span><div class="muted" style="margin:7px 2px 2px">${l.desc}</div></div>`).join('');
 }
-
-function renderGuide(ctx, lesson, currentStep){
-  ctx.clearRect(0,0,320,320);
-  for (let i=0; i<=currentStep; i++){
-    const shapes = lesson.steps[i];
-    const isCurrent = i === currentStep;
-    shapes.forEach(s => {
-      if (s.color) drawColorShape(ctx, s);
-      else drawShape(ctx, s, isCurrent ? '#2FA99A' : '#C9C2B4', isCurrent ? 3 : 2.5, isCurrent);
-    });
-  }
+let currentLesson=0,step=0;
+function openLesson(i){currentLesson=i;step=0;list.classList.add('hidden');viewer.classList.remove('hidden');renderStep()}
+function backLessons(){viewer.classList.add('hidden');list.classList.remove('hidden')}
+function renderStep(){let l=lessonsData[currentLesson],s=stepsFor(l.id)[step];guide.innerHTML=artFor(l.id,step);title.textContent=s[0];desc.textContent=s[1];counter.textContent=(step+1)+' / 5';bar.style.width=((step+1)/5*100)+'%'}
+function stepsFor(id){
+ const names={eye:'العين',nose:'الأنف',lips:'الشفاه',ear:'الأذن',hand:'اليد',face:'الوجه',hair:'الشعر',cat:'وجه القطة',rose:'الوردة',mug:'الكوب',landscape:'المنظر الطبيعي',light:'الظل والنور'};
+ const n=names[id]||'الرسم';
+ return [`1 • الهيكل — ${n}`,`2 • البناء — ${n}`,`3 • التفاصيل — ${n}`,`4 • الظلال — ${n}`,`5 • اللمسات الأخيرة — ${n}`].map((t,i)=>[t,[
+ 'ابدأ بخطوط خفيفة جداً لتحديد الشكل العام والنِّسب. لا تحاول إنهاء التفاصيل من البداية.',
+ 'قسّم الشكل إلى كتل بسيطة، وثبّت الزوايا والأحجام قبل الانتقال للتفاصيل.',
+ 'أضف التفاصيل الأساسية تدريجياً مع الحفاظ على اتجاه الخطوط وشكل السطح.',
+ 'حدد جهة الضوء ثم أضف الظلال بتدرجات ناعمة. اترك مناطق مضيئة بدون تغطية.',
+ 'قوِّ أهم الحواف والتفاصيل، امسح خطوط البناء، وأضف اللمسات الأخيرة واللمعة.'][i]]);
 }
-
-function renderThumb(canvas, lesson){
-  const ctx = canvas.getContext('2d');
-  canvas.width = 300; canvas.height = 300;
-  ctx.clearRect(0,0,300,300);
-  lesson.steps.forEach(shapes => shapes.forEach(s => {
-    if (s.color) drawColorShape(ctx, s);
-    else drawShape(ctx, s, '#2E2A26', 3, false);
-  }));
-}
-
-/* ================= HOME GRID ================= */
-const grid = document.getElementById('grid');
-const chipsEl = document.getElementById('chips');
-let activeFilter = 'all';
-
-function buildChips(){
-  const filters = [['all','الكل'],['easy','سهل'],['medium','متوسط'],['hard','صعب']];
-  chipsEl.innerHTML = '';
-  filters.forEach(([key,label]) => {
-    const c = document.createElement('div');
-    c.className = 'chip' + (key===activeFilter ? ' active' : '');
-    c.textContent = label;
-    c.onclick = () => { activeFilter = key; buildChips(); buildGrid(); };
-    chipsEl.appendChild(c);
-  });
-}
-
-function buildGrid(){
-  grid.innerHTML = '';
-  const list = LESSONS.filter(l => activeFilter==='all' || l.difficulty===activeFilter);
-  list.forEach((lesson, idx) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.setProperty('--tilt', ((idx%2===0?-1:1) * (1+ (idx%3))) + 'deg');
-    const canvas = document.createElement('canvas');
-    card.appendChild(canvas);
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.innerHTML = `<span class="title">${lesson.title}</span><span class="pill ${lesson.difficulty}">${DIFF_LABEL[lesson.difficulty]}</span>`;
-    card.appendChild(meta);
-    card.onclick = () => openLesson(lesson);
-    grid.appendChild(card);
-    renderThumb(canvas, lesson);
-  });
-}
-
-/* ================= LESSON VIEW ================= */
-const lessonView = document.getElementById('lessonView');
-const homeParts = [document.querySelector('header.top'), chipsEl, grid, document.querySelector('.about-note')];
-const guideCanvas = document.getElementById('guideCanvas');
-const inkCanvas = document.getElementById('inkCanvas');
-const guideCtx = guideCanvas.getContext('2d');
-const inkCtx = inkCanvas.getContext('2d');
-
-let currentLesson = null;
-let currentStep = 0;
-let brushColor = '#2E2A26';
-let brushSize = 5;
-let drawMode = 'screen'; // 'screen' or 'paper'
-
-function setMode(m){
-  drawMode = m;
-  [...document.getElementById('modeToggle').children].forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.mode === m);
-  });
-  const showScreenTools = m === 'screen';
-  inkCanvas.style.display = showScreenTools ? 'block' : 'none';
-  document.querySelector('.tools').style.display = showScreenTools ? 'block' : 'none';
-}
-[...document.getElementById('modeToggle').children].forEach(btn => {
-  btn.onclick = () => setMode(btn.dataset.mode);
-});
-
-function openLesson(lesson){
-  currentLesson = lesson;
-  currentStep = 0;
-  homeParts.forEach(el => el.style.display = 'none');
-  lessonView.style.display = 'block';
-  document.getElementById('lessonTitle').textContent = lesson.title;
-  inkCtx.clearRect(0,0,320,320);
-  setMode('screen');
-  buildDots();
-  refreshStep();
-  window.scrollTo(0,0);
-}
-
-function closeLesson(){
-  lessonView.style.display = 'none';
-  homeParts.forEach(el => el.style.display = '');
-}
-document.getElementById('backBtn').onclick = closeLesson;
-
-function buildDots(){
-  const dots = document.getElementById('stepDots');
-  dots.innerHTML = '';
-  currentLesson.steps.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'dot';
-    dots.appendChild(d);
-  });
-}
-
-function refreshStep(){
-  renderGuide(guideCtx, currentLesson, currentStep);
-  document.getElementById('stepCaption').textContent =
-    (currentLesson.captions && currentLesson.captions[currentStep]) || `الخطوة ${currentStep+1}`;
-  [...document.getElementById('stepDots').children].forEach((d,i) => {
-    d.classList.toggle('on', i<=currentStep);
-  });
-  document.getElementById('prevStep').disabled = currentStep === 0;
-  const isLast = currentStep === currentLesson.steps.length - 1;
-  const nextBtn = document.getElementById('nextStep');
-  nextBtn.textContent = isLast ? 'خلصت الرسمة 🎉' : 'التالية ▶';
-  nextBtn.disabled = isLast;
-}
-
-document.getElementById('prevStep').onclick = () => {
-  if (currentStep > 0){ currentStep--; refreshStep(); }
-};
-document.getElementById('nextStep').onclick = () => {
-  if (currentStep < currentLesson.steps.length - 1){ currentStep++; refreshStep(); }
-};
-document.getElementById('clearInk').onclick = () => inkCtx.clearRect(0,0,320,320);
-
-/* ---- swatches ---- */
-const COLORS = ['#2E2A26','#FF6B6B','#2FA99A','#F2B33D','#8B7CD9','#4A90D9'];
-const swatchRow = document.getElementById('swatchRow');
-COLORS.forEach((c,i) => {
-  const sw = document.createElement('div');
-  sw.className = 'swatch' + (i===0 ? ' on' : '');
-  sw.style.background = c;
-  sw.onclick = () => {
-    brushColor = c;
-    [...swatchRow.children].forEach(x => x.classList.remove('on'));
-    sw.classList.add('on');
-  };
-  swatchRow.appendChild(sw);
-});
-document.getElementById('sizeRange').oninput = (e) => brushSize = Number(e.target.value);
-
-/* ---- drawing on ink canvas ---- */
-let drawing = false, lastX=0, lastY=0;
-function getPos(e){
-  const rect = inkCanvas.getBoundingClientRect();
-  const scaleX = 320/rect.width, scaleY = 320/rect.height;
-  const p = e.touches ? e.touches[0] : e;
-  return { x:(p.clientX-rect.left)*scaleX, y:(p.clientY-rect.top)*scaleY };
-}
-function start(e){ e.preventDefault(); drawing = true; const p = getPos(e); lastX=p.x; lastY=p.y; }
-function move(e){
-  if (!drawing) return;
-  e.preventDefault();
-  const p = getPos(e);
-  inkCtx.strokeStyle = brushColor;
-  inkCtx.lineWidth = brushSize;
-  inkCtx.lineCap = 'round'; inkCtx.lineJoin = 'round';
-  inkCtx.beginPath(); inkCtx.moveTo(lastX,lastY); inkCtx.lineTo(p.x,p.y); inkCtx.stroke();
-  lastX=p.x; lastY=p.y;
-}
-function end(){ drawing = false; }
-['mousedown','touchstart'].forEach(ev => inkCanvas.addEventListener(ev, start, {passive:false}));
-['mousemove','touchmove'].forEach(ev => inkCanvas.addEventListener(ev, move, {passive:false}));
-['mouseup','mouseleave','touchend'].forEach(ev => inkCanvas.addEventListener(ev, end));
-
-/* ================= INIT ================= */
-buildChips();
-buildGrid();
-
-/* ================= PWA / OFFLINE (manual updates only) ================= */
-let waitingWorker = null;
-const updateToast = document.getElementById('updateToast');
-
-function showUpdateReady(){
-  updateToast.innerHTML = 'في تحديث جديد جاهز 🎉<button id="applyUpdateBtn">حدّث الآن</button>';
-  updateToast.style.display = 'block';
-  document.getElementById('applyUpdateBtn').onclick = () => {
-    if (waitingWorker) waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-  };
-}
-
-function showToastMsg(msg, ms){
-  updateToast.innerHTML = msg;
-  updateToast.style.display = 'block';
-  setTimeout(() => { if (!waitingWorker) updateToast.style.display = 'none'; }, ms || 2500);
-}
-
-if ('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then((reg) => {
-      // A worker already waiting from a previous check
-      if (reg.waiting && navigator.serviceWorker.controller){
-        waitingWorker = reg.waiting;
-        showUpdateReady();
-      }
-      reg.addEventListener('updatefound', () => {
-        const nw = reg.installing;
-        if (!nw) return;
-        nw.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller){
-            waitingWorker = nw;
-            showUpdateReady();
-          }
-        });
-      });
-    }).catch(() => {});
-
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      location.reload();
-    });
-  });
-}
-
-document.getElementById('checkUpdateBtn').onclick = () => {
-  if (!('serviceWorker' in navigator)) return;
-  showToastMsg('جارٍ التحقق من تحديثات…', 2500);
-  navigator.serviceWorker.getRegistration().then((reg) => {
-    if (reg) reg.update();
-  });
-};
-</script>
-</body>
-</html>
+function next(){if(step<4){step++;renderStep()}else alert('🎉 خلصت الدرس!')}
+function prev(){if(step){step--;renderStep()}}
+let step=0;
+function openLesson(){step=0;list.classList.add('hidden');viewer.classList.remove('hidden');renderStep()}function backLessons(){viewer.classList.add('hidden');list.classList.remove('hidden')}function renderStep(){let s=steps[step];guide.innerHTML=eye(step);title.textContent=s[0];desc.textContent=s[1];counter.textContent=(step+1)+' / '+steps.length;bar.style.width=((step+1)/steps.length*100)+'%'}function next(){if(step<steps.length-1){step++;renderStep()}else alert('🎉 خلصت الدرس!')}function prev(){if(step){step--;renderStep()}}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>

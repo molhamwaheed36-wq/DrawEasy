@@ -1,16 +1,17 @@
 {
-  "name": "Draw Easy",
+  "name": "Draw Easy 2.0",
   "short_name": "Draw Easy",
-  "description": "دروس رسم خطوة بخطوة تشتغل بدون إنترنت",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#FBF7EF",
-  "theme_color": "#FBF7EF",
-  "orientation": "portrait",
-  "dir": "rtl",
+  "background_color": "#08090d",
+  "theme_color": "#7566ff",
   "lang": "ar",
+  "dir": "rtl",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
   ]
 }
